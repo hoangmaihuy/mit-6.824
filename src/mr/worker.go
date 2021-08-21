@@ -150,6 +150,7 @@ func ReduceWorker(reducef func(string, []string) string) {
 		}
 	}
 }
+
 // the RPC argument and reply types are defined in rpc.go.
 
 func requestMapTask() (string, int, int) {
@@ -188,6 +189,7 @@ func completeReduceTask(reduceNumber int, outputFile string) {
 	call("Coordinator.CompleteReduceTask", &args, &reply)
 	DPrintf("CompleteReduceTask: reply = %v", reply)
 }
+
 //
 // send an RPC request to the coordinator, wait for the response.
 // usually returns true.
