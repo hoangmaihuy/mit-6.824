@@ -1,10 +1,16 @@
 package mr
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"sort"
+	"time"
+)
 import "log"
 import "net/rpc"
 import "hash/fnv"
-
 
 //
 // Map functions return a slice of KeyValue.
@@ -13,6 +19,14 @@ type KeyValue struct {
 	Key   string
 	Value string
 }
+
+// for sorting by key.
+type ByKey []KeyValue
+
+// for sorting by key.
+func (a ByKey) Len() int           { return len(a) }
+func (a ByKey) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByKey) Less(i, j int) bool { return a[i].Key < a[j].Key }
 
 //
 // use ihash(key) % NReduce to choose the reduce
@@ -24,43 +38,156 @@ func ihash(key string) int {
 	return int(h.Sum32() & 0x7fffffff)
 }
 
-
 //
 // main/mrworker.go calls this function.
 //
 func Worker(mapf func(string, string) []KeyValue,
 	reducef func(string, []string) string) {
-
-	// Your worker implementation here.
-
-	// uncomment to send the Example RPC to the coordinator.
-	// CallExample()
-
+	go MapWorker(mapf)
+	go ReduceWorker(reducef)
+	select {}
 }
 
-//
-// example function to show how to make an RPC call to the coordinator.
-//
+func MapWorker(mapf func(string, string) []KeyValue) {
+	for {
+		inputFile, mapNumber, nReduce := requestMapTask()
+		if mapNumber == -1 {
+			time.Sleep(time.Second)
+		} else {
+			file, err := os.Open(inputFile)
+			if err != nil {
+				log.Fatalf("cannot open input file: %v", inputFile)
+			}
+			content, err := ioutil.ReadAll(file)
+			if err != nil {
+				log.Fatalf("cannot read input file: %v", inputFile)
+			}
+			// do the map
+			kva := mapf(inputFile, string(content))
+			// split map result into NReduce bucket and send to reducer
+			intermediates := make([][]KeyValue, nReduce)
+			for _, elem := range kva {
+				i := ihash(elem.Key) % nReduce
+				intermediates[i] = append(intermediates[i], elem)
+			}
+			// write intermediates and notify coordinator
+			for i := 0; i < nReduce; i++ {
+				go func(reduceNumber int) {
+					iname := fmt.Sprintf("mr-%v-%v", mapNumber, reduceNumber)
+					ifile, _ := os.Create(iname)
+					defer ifile.Close()
+					enc := json.NewEncoder(ifile)
+					for _, kv := range intermediates[reduceNumber] {
+						err := enc.Encode(&kv)
+						if err != nil {
+							log.Fatalf("cannot encode intermediate %v", kv)
+						}
+					}
+					completeMapTask(mapNumber, reduceNumber, iname)
+				}(i)
+			}
+		}
+	}
+}
+
+func ReduceWorker(reducef func(string, []string) string) {
+	for {
+		reduceNumber, intermediateFiles := requestReduceTask()
+		if reduceNumber == -1 {
+			time.Sleep(time.Second)
+		} else {
+			var intermediate []KeyValue
+			// read all intermediate files and combine to one
+			for _, iname := range intermediateFiles {
+				ifile, err := os.Open(iname)
+				if err != nil {
+					log.Fatalf("cannot open intermediate %v", iname)
+				}
+				dec := json.NewDecoder(ifile)
+				for {
+					var kv KeyValue
+					if err := dec.Decode(&kv); err != nil {
+						break // EOF
+					}
+					intermediate = append(intermediate, kv)
+				}
+				ifile.Close()
+			}
+			// sort values, pass to reducef and write to output file
+			// this part is stolen from mrsequential.go
+
+			sort.Sort(ByKey(intermediate))
+
+			oname := fmt.Sprintf("mr-out-%v", reduceNumber)
+			ofile, _ := os.Create(oname)
+
+			//
+			// call Reduce on each distinct key in intermediate[],
+			// and print the result to mr-out-{reduceNumber}
+			//
+			i := 0
+			for i < len(intermediate) {
+				j := i + 1
+				for j < len(intermediate) && intermediate[j].Key == intermediate[i].Key {
+					j++
+				}
+				values := []string{}
+				for k := i; k < j; k++ {
+					values = append(values, intermediate[k].Value)
+				}
+				output := reducef(intermediate[i].Key, values)
+
+				// this is the correct format for each line of Reduce output.
+				fmt.Fprintf(ofile, "%v %v\n", intermediate[i].Key, output)
+
+				i = j
+			}
+
+			ofile.Close()
+
+			// finally, notify coordinator
+			completeReduceTask(reduceNumber, oname)
+		}
+	}
+}
 // the RPC argument and reply types are defined in rpc.go.
-//
-func CallExample() {
 
-	// declare an argument structure.
-	args := ExampleArgs{}
+func requestMapTask() (string, int, int) {
+	args := RequestMapTaskArgs{}
+	reply := RequestMapTaskReply{}
 
-	// fill in the argument(s).
-	args.X = 99
-
-	// declare a reply structure.
-	reply := ExampleReply{}
-
-	// send the RPC request, wait for the reply.
-	call("Coordinator.Example", &args, &reply)
-
-	// reply.Y should be 100.
-	fmt.Printf("reply.Y %v\n", reply.Y)
+	log.Printf("RequestMapTask: args = %v", args)
+	call("Coordinator.RequestMapTask", &args, &reply)
+	log.Printf("RequestMapTask: reply = %v", reply)
+	return reply.InputFile, reply.MapNumber, reply.NReduce
 }
 
+func completeMapTask(mapNumber int, reduceNumber int, intermediateFile string) {
+	args := CompleteMapTaskArgs{mapNumber, reduceNumber, intermediateFile}
+	reply := CompleteReduceTaskReply{}
+	log.Printf("CompleteMapTask: args = %v", args)
+	call("Coordinator.CompleteMapTask", &args, &reply)
+	log.Printf("CompleteMapTask: reply = %v", reply)
+}
+
+func requestReduceTask() (int, []string) {
+	args := RequestReduceTaskArgs{}
+	reply := RequestReduceTaskReply{}
+
+	log.Printf("RequestReduceTask: args = %v", args)
+	call("Coordinator.RequestReduceTask", &args, &reply)
+	log.Printf("RequestReduceTask: reply = %v", reply)
+	return reply.ReduceNumber, reply.IntermediateFiles
+}
+
+func completeReduceTask(reduceNumber int, outputFile string) {
+	args := CompleteReduceTaskArgs{reduceNumber, outputFile}
+	reply := CompleteReduceTaskReply{}
+
+	log.Printf("CompleteReduceTask: args = %v", args)
+	call("Coordinator.CompleteReduceTask", &args, &reply)
+	log.Printf("CompleteReduceTask: reply = %v", reply)
+}
 //
 // send an RPC request to the coordinator, wait for the response.
 // usually returns true.
