@@ -14,10 +14,10 @@ const TaskTimeout = 10
 type TaskState int
 
 const (
-	Idle       TaskState = iota
-	Ready      TaskState = iota
-	InProgress TaskState = iota
-	Completed  TaskState = iota
+	Idle       TaskState = iota // apply for ReduceTask when MapTask not finished yet
+	Ready      TaskState = iota // ready to schedule to worker
+	InProgress TaskState = iota // worker is working on it!
+	Completed  TaskState = iota // MapTask completed -> ReduceTask ready, all ReduceTask completed -> done
 )
 
 type MapTask struct {
@@ -83,7 +83,7 @@ func isAllCollected(files []string) bool {
 
 func (c *Coordinator) CompleteMapTask(args *CompleteMapTaskArgs, reply *CompleteMapTaskReply) error {
 	DPrintf("CompleteMapTask: args = %v", args)
-	// append intermediate file to map task
+	// add intermediate file to map task
 	i := args.MapNumber
 	j := args.ReduceNumber
 	if i < len(c.mapTasks) {
@@ -96,7 +96,7 @@ func (c *Coordinator) CompleteMapTask(args *CompleteMapTaskArgs, reply *Complete
 		mapTask.mutex.Unlock()
 
 	}
-	// append intermediate file to reduce task
+	// add intermediate file to reduce task
 	if j < len(c.reduceTasks) {
 		reduceTask := &c.reduceTasks[j]
 		reduceTask.mutex.Lock()
@@ -186,8 +186,8 @@ func checkMapTasks(c *Coordinator) {
 		mapTask := &c.mapTasks[i]
 		mapTask.mutex.Lock()
 		if mapTask.state == InProgress {
+			// worker probably crashed, mark as Ready to schedule to other workers
 			if mapTask.elapsed++; mapTask.elapsed > TaskTimeout {
-				// worker probably crashed, mark as Ready to schedule to other workers
 				mapTask.state = Ready
 			}
 		}
@@ -200,6 +200,7 @@ func checkReduceTasks(c *Coordinator) {
 		reduceTask := &c.reduceTasks[j]
 		reduceTask.mutex.Lock()
 		if reduceTask.state == InProgress {
+			// worker probably crashed, mark as Ready to schedule to other workers
 			if reduceTask.elapsed++; reduceTask.elapsed > TaskTimeout {
 				reduceTask.state = Ready
 			}

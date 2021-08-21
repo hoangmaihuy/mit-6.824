@@ -40,7 +40,9 @@ func ihash(key string) int {
 
 //
 // main/mrworker.go calls this function.
+// simply spawn MapWorker and ReduceWorker and loop forever
 //
+
 func Worker(mapf func(string, string) []KeyValue,
 	reducef func(string, []string) string) {
 	go MapWorker(mapf)
