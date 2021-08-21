@@ -156,27 +156,27 @@ func requestMapTask() (string, int, int) {
 	args := RequestMapTaskArgs{}
 	reply := RequestMapTaskReply{}
 
-	log.Printf("RequestMapTask: args = %v", args)
+	DPrintf("RequestMapTask: args = %v", args)
 	call("Coordinator.RequestMapTask", &args, &reply)
-	log.Printf("RequestMapTask: reply = %v", reply)
+	DPrintf("RequestMapTask: reply = %v", reply)
 	return reply.InputFile, reply.MapNumber, reply.NReduce
 }
 
 func completeMapTask(mapNumber int, reduceNumber int, intermediateFile string) {
 	args := CompleteMapTaskArgs{mapNumber, reduceNumber, intermediateFile}
 	reply := CompleteReduceTaskReply{}
-	log.Printf("CompleteMapTask: args = %v", args)
+	DPrintf("CompleteMapTask: args = %v", args)
 	call("Coordinator.CompleteMapTask", &args, &reply)
-	log.Printf("CompleteMapTask: reply = %v", reply)
+	DPrintf("CompleteMapTask: reply = %v", reply)
 }
 
 func requestReduceTask() (int, []string) {
 	args := RequestReduceTaskArgs{}
 	reply := RequestReduceTaskReply{}
 
-	log.Printf("RequestReduceTask: args = %v", args)
+	DPrintf("RequestReduceTask: args = %v", args)
 	call("Coordinator.RequestReduceTask", &args, &reply)
-	log.Printf("RequestReduceTask: reply = %v", reply)
+	DPrintf("RequestReduceTask: reply = %v", reply)
 	return reply.ReduceNumber, reply.IntermediateFiles
 }
 
@@ -184,9 +184,9 @@ func completeReduceTask(reduceNumber int, outputFile string) {
 	args := CompleteReduceTaskArgs{reduceNumber, outputFile}
 	reply := CompleteReduceTaskReply{}
 
-	log.Printf("CompleteReduceTask: args = %v", args)
+	DPrintf("CompleteReduceTask: args = %v", args)
 	call("Coordinator.CompleteReduceTask", &args, &reply)
-	log.Printf("CompleteReduceTask: reply = %v", reply)
+	DPrintf("CompleteReduceTask: reply = %v", reply)
 }
 //
 // send an RPC request to the coordinator, wait for the response.

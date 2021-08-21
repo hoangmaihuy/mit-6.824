@@ -44,7 +44,7 @@ type Coordinator struct {
 //
 
 func (c *Coordinator) RequestMapTask(args *RequestMapTaskArgs, reply *RequestMapTaskReply) error {
-	log.Printf("RequestMapTask: received")
+	DPrintf("RequestMapTask: received")
 	for i := range c.mapTasks {
 		task := &c.mapTasks[i]
 		task.mutex.Lock()
@@ -54,19 +54,19 @@ func (c *Coordinator) RequestMapTask(args *RequestMapTaskArgs, reply *RequestMap
 			reply.NReduce = c.nReduce
 			task.state = InProgress
 			task.mutex.Unlock()
-			log.Printf("RequestMapTask: returned %v", reply)
+			DPrintf("RequestMapTask: returned %v", reply)
 			return nil
 		}
 		task.mutex.Unlock()
 	}
 
 	reply.MapNumber = -1
-	log.Printf("RequestMapTask: no ready task")
+	DPrintf("RequestMapTask: no ready task")
 	return nil
 }
 
 func (c *Coordinator) CompleteMapTask(args *CompleteMapTaskArgs, reply *CompleteMapTaskReply) error {
-	log.Printf("CompleteMapTask: args = %v", args)
+	DPrintf("CompleteMapTask: args = %v", args)
 	// append intermediate file to map task
 	if i := args.MapNumber; i < len(c.mapTasks) {
 		mapTask := &c.mapTasks[i]
@@ -89,12 +89,12 @@ func (c *Coordinator) CompleteMapTask(args *CompleteMapTaskArgs, reply *Complete
 		}
 		reduceTask.mutex.Unlock()
 	}
-	log.Printf("CompleteMapTask: returned")
+	DPrintf("CompleteMapTask: returned")
 	return nil
 }
 
 func (c *Coordinator) RequestReduceTask(args *RequestReduceTaskArgs, reply *RequestReduceTaskReply) error {
-	log.Printf("RequestReduceTask: args = %v", args)
+	DPrintf("RequestReduceTask: args = %v", args)
 	for j := range c.reduceTasks {
 		task := &c.reduceTasks[j]
 		task.mutex.Lock()
@@ -103,18 +103,18 @@ func (c *Coordinator) RequestReduceTask(args *RequestReduceTaskArgs, reply *Requ
 			reply.IntermediateFiles = task.intermediateFiles
 			task.state = InProgress
 			task.mutex.Unlock()
-			log.Printf("RequestReduceTask: reply = %v", reply)
+			DPrintf("RequestReduceTask: reply = %v", reply)
 			return nil
 		}
 		task.mutex.Unlock()
 	}
 	reply.ReduceNumber = -1
-	log.Printf("RequestReduceTask: no ready task")
+	DPrintf("RequestReduceTask: no ready task")
 	return nil
 }
 
 func (c *Coordinator) CompleteReduceTask(args *CompleteReduceTaskArgs, reply *CompleteReduceTaskReply) error {
-	log.Printf("CompleteReduceTask: args = %v", args)
+	DPrintf("CompleteReduceTask: args = %v", args)
 	if j := args.ReduceNumber; j < len(c.reduceTasks) {
 		task := &c.reduceTasks[j]
 		task.mutex.Lock()
@@ -122,7 +122,7 @@ func (c *Coordinator) CompleteReduceTask(args *CompleteReduceTaskArgs, reply *Co
 		task.state = Completed
 		task.mutex.Unlock()
 	}
-	log.Printf("CompleteReduceTask: returned")
+	DPrintf("CompleteReduceTask: returned")
 	return nil
 }
 //
