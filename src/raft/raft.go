@@ -346,7 +346,6 @@ func (rf *Raft) killed() bool {
 func (rf *Raft) ticker() {
 	for rf.killed() == false {
 
-		rf.resetElectionTimeout()
 		time.Sleep(rf.electionTimeout)
 		//DPrintf("ticker on raft %v", rf.me)
 
@@ -359,6 +358,7 @@ func (rf *Raft) ticker() {
 			rf.votedFor = rf.me
 			rf.state = Candidate
 			rf.lastHeartbeat = time.Now()
+			rf.resetElectionTimeout()
 			args := RequestVoteArgs{
 				Term: rf.currentTerm,
 				CandidateId: rf.me,
@@ -390,6 +390,7 @@ func (rf *Raft) ticker() {
 			if voteCount > len(rf.peers) / 2 { // win majority
 				DPrintf("raft %v won election with voteCount = %v", rf.me, voteCount)
 				rf.state = Leader
+				rf.sendHeartbeat()
 			} else {
 				DPrintf("raft %v lost election with voteCount = %v", rf.me, voteCount)
 				rf.state = Follower
@@ -404,27 +405,29 @@ func (rf *Raft) ticker() {
 }
 
 // heartbeat is a go routine for Leader to send empty AppendEntries message
+func (rf *Raft) sendHeartbeat() {
+	args := AppendEntriesArgs{
+		Term: rf.currentTerm,
+		LeaderId: rf.me,
+		PrevLogIndex: 0,
+		PrevLogTerm: 0,
+		Entries: nil,
+		LeaderCommit: 0,
+	}
+	for i := range rf.peers {
+		go rf.sendAppendEntries(i, &args, new(AppendEntriesReply))
+	}
+}
+
 func (rf *Raft) heartbeat() {
 	for rf.killed() == false {
 		time.Sleep(HeartbeatInterval)
 		rf.mu.Lock()
-		term := rf.currentTerm
-		isLeader := rf.state == Leader
 		//DPrintf("heartbeat on raft %v, term = %v, state = %v", rf.me, term, rf.state)
-		rf.mu.Unlock()
-		if isLeader {
-			args := AppendEntriesArgs{
-				Term: term,
-				LeaderId: rf.me,
-				PrevLogIndex: 0,
-				PrevLogTerm: 0,
-				Entries: nil,
-				LeaderCommit: 0,
-			}
-			for i := range rf.peers {
-				go rf.sendAppendEntries(i, &args, new(AppendEntriesReply))
-			}
+		if rf.state == Leader {
+			rf.sendHeartbeat()
 		}
+		rf.mu.Unlock()
 	}
 }
 
