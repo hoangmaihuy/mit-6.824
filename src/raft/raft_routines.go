@@ -69,6 +69,7 @@ func (rf *Raft) ticker() {
 }
 
 func (rf *Raft) commit(toIndex int) {
+	DPrintf("raft %v commit toIndex = %v", rf.me, toIndex)
 	for i := rf.commitIndex+1; i <= toIndex; i++ {
 		entry := rf.getEntry(i)
 		rf.applyCh <- ApplyMsg{
@@ -85,7 +86,10 @@ func (rf *Raft) commit(toIndex int) {
 }
 
 func (rf *Raft) updateCommit() {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
 	lastIndex := rf.lastEntry().Index
+	rf.matchIndex[rf.me] = lastIndex
 	for i := rf.commitIndex + 1; i <= lastIndex; i++ {
 		matchCount := 0
 		for j := range rf.peers {
@@ -108,6 +112,7 @@ func (rf *Raft) sendEntries() {
 				rf.mu.Lock()
 				nextIndex := rf.nextIndex[i]
 				nextEntries := rf.getEntries(nextIndex, 5)
+				DPrintf("leader %v sendEntries to raft %v, nextIndex = %v", rf.me, i, nextIndex)
 				args := AppendEntriesArgs{
 					Term:         rf.currentTerm,
 					LeaderId:     rf.me,
@@ -123,7 +128,7 @@ func (rf *Raft) sendEntries() {
 				if reply.Success {
 					rf.nextIndex[i] = nextIndex + len(nextEntries)
 					rf.matchIndex[i] = rf.nextIndex[i] - 1
-				} else {
+				} else if rf.nextIndex[i] > 1 {
 					rf.nextIndex[i]--
 				}
 				rf.mu.Unlock()
@@ -147,6 +152,7 @@ func (rf *Raft) heartbeat() {
 }
 
 func (rf *Raft) applyEntries() {
+	time.Sleep(100 * time.Millisecond)
 	rf.mu.Lock()
 	commitIndex := rf.commitIndex
 	rf.mu.Unlock()

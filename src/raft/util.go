@@ -39,6 +39,7 @@ func (rf *Raft) lastEntry() *Entry {
 }
 
 func (rf *Raft) getEntry(index int) *Entry {
+	DPrintf("raft %v getEntry: index = %v", rf.me, index)
 	if index > len(rf.logs)-1 {
 		return nil
 	}

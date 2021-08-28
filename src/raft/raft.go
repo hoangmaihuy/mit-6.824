@@ -236,7 +236,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.lastHeartbeat = time.Now()
 		reply.Success = false
 	} else {
-		rf.eraseEntries(args.PrevLogIndex+1)
+		rf.eraseEntries(args.PrevLogIndex + 1)
 		rf.appendEntries(args.Entries)
 		if args.LeaderCommit > rf.commitIndex {
 			newCommitIndex := min(args.LeaderCommit, rf.lastEntry().Index)
