@@ -19,7 +19,9 @@ func (rf *Raft) ticker() {
 			// start an election
 			//DPrintf("raft %v started an election", rf.me)
 			rf.currentTerm = rf.currentTerm + 1
+			rf.persist()
 			rf.votedFor = rf.me
+			rf.persist()
 			rf.state = Candidate
 			rf.lastHeartbeat = time.Now()
 			rf.resetElectionTimeout()
@@ -56,9 +58,10 @@ func (rf *Raft) ticker() {
 				rf.state = Leader
 				rf.sendEntries()
 			} else {
-				DPrintf("raft %v lost election with voteCount = %v", rf.me, voteCount)
+				//DPrintf("raft %v lost election with voteCount = %v", rf.me, voteCount)
 				rf.state = Follower
 				rf.votedFor = -1
+				rf.persist()
 			}
 			mutex.Unlock()
 			rf.mu.Unlock()
@@ -70,7 +73,7 @@ func (rf *Raft) ticker() {
 
 func (rf *Raft) commit(toIndex int) {
 	DPrintf("raft %v commit toIndex = %v", rf.me, toIndex)
-	for i := rf.commitIndex+1; i <= toIndex; i++ {
+	for i := rf.commitIndex + 1; i <= toIndex; i++ {
 		entry := rf.getEntry(i)
 		rf.applyCh <- ApplyMsg{
 			CommandValid:  true,
@@ -97,7 +100,7 @@ func (rf *Raft) updateCommit() {
 				matchCount++
 			}
 		}
-		DPrintf("leader raft %v updateCommit: index = %v, matchCount = %v", rf.me, i, matchCount)
+		//DPrintf("leader raft %v updateCommit: index = %v, matchCount = %v", rf.me, i, matchCount)
 		if matchCount > len(rf.peers)/2 && rf.getEntry(i).Term == rf.currentTerm {
 			rf.commit(i)
 		}
@@ -111,8 +114,8 @@ func (rf *Raft) sendEntries() {
 			go func(i int) {
 				rf.mu.Lock()
 				nextIndex := rf.nextIndex[i]
+				//fmt.Printf("leader %v sendEntries to raft %v, nextIndex = %v\n", rf.me, i, nextIndex)
 				nextEntries := rf.getEntries(nextIndex, 5)
-				DPrintf("leader %v sendEntries to raft %v, nextIndex = %v", rf.me, i, nextIndex)
 				args := AppendEntriesArgs{
 					Term:         rf.currentTerm,
 					LeaderId:     rf.me,
