@@ -451,6 +451,7 @@ func (cfg *config) nCommitted(index int) (int, interface{}) {
 			cmd = cmd1
 		}
 	}
+	//DPrintf("nCommitted: index = %v, count = %v", index, count)
 	return count, cmd
 }
 
