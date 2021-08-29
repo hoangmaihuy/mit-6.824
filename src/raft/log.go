@@ -19,6 +19,11 @@ func makeLog() Log {
 		},
 	}
 }
+
+func (rf *Raft) getLogLen() int {
+	return len(rf.log.Entries)
+}
+
 // get last log entry, assume that there is always one dummy entry with index = 0
 func (rf *Raft) lastEntry() *Entry {
 	return rf.getEntry(len(rf.log.Entries)-1)

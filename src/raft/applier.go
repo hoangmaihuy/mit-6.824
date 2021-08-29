@@ -49,8 +49,8 @@ func (rf *Raft) applier() {
 		if rf.commitIndex == rf.lastApplied {
 			rf.applyCond.Wait()
 		}
-		rf.DPrintf("applier wakes up")
 		commitIndex := rf.commitIndex
+		rf.DPrintf("applier wakes up, commitIndex = %v, lastApplied = %v", commitIndex, rf.lastApplied)
 		rf.mu.Unlock()
 		for ; rf.lastApplied < commitIndex; rf.lastApplied++ {
 			entry := rf.getEntry(rf.lastApplied+1)
@@ -63,6 +63,7 @@ func (rf *Raft) applier() {
 				SnapshotTerm:  0,
 				SnapshotIndex: 0,
 			}
+			rf.DPrintf("applied entry = %v", entry)
 		}
 	}
 }

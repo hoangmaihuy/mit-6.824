@@ -1,6 +1,6 @@
 package raft
 
-const MaxAppendEntriesSize = 10
+const MaxAppendEntriesSize = 3
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
@@ -22,10 +22,10 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		if len(args.Entries) > 0 {
 			rf.eraseEntries(args.PrevLogIndex + 1)
 			rf.appendEntries(args.Entries...)
-			if args.LeaderCommit > rf.commitIndex {
-				rf.commitIndex = min(args.LeaderCommit, rf.lastEntry().Index)
-				rf.applyCond.Broadcast()
-			}
+		}
+		if args.LeaderCommit > rf.commitIndex {
+			rf.commitIndex = min(args.LeaderCommit, rf.lastEntry().Index)
+			rf.applyCond.Broadcast()
 		}
 		reply.Success = true
 		reply.IsLogConflict = false
@@ -47,7 +47,7 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 	reply := AppendEntriesReply{}
 
 	rf.mu.Lock()
-	if isHeartbeat {
+	if isHeartbeat && rf.nextIndex[server] > rf.lastEntry().Index {
 		args = AppendEntriesArgs{
 			Term:         rf.currentTerm,
 			LeaderId:     rf.me,
@@ -58,6 +58,7 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 		}
 	} else {
 		nextIndex := rf.nextIndex[server]
+		rf.DPrintf("sendAllAppendEntries, log len = %v, server = %v, isHeartbeat = %v, nextIndex = %v", rf.getLogLen(), server, isHeartbeat, nextIndex)
 		prevEntry := rf.getEntry(nextIndex-1)
 		entries := rf.getEntries(nextIndex, MaxAppendEntriesSize)
 		args = AppendEntriesArgs{
@@ -77,12 +78,13 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 		rf.setElectionTimeout()
 
 		if reply.Success {
-			rf.nextIndex[server] += len(args.Entries)
+			rf.nextIndex[server] = args.PrevLogIndex + len(args.Entries) + 1
 			rf.matchIndex[server] = rf.nextIndex[server] - 1
+			rf.DPrintf("sendAllAppendEntries success, server = %v, nextIndex = %v, entries = %v", server, rf.nextIndex[server], args.Entries)
 		} else {
 			rf.updateTermL(reply.Term)
-			if reply.IsLogConflict {
-				rf.nextIndex[server]--
+			if reply.IsLogConflict && rf.nextIndex[server] > 1 {
+				rf.nextIndex[server] = args.PrevLogIndex
 				rf.matchIndex[server] = rf.nextIndex[server] - 1
 			}
 		}

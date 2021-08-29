@@ -35,7 +35,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 
 // set electionTimeout to a random duration
 func (rf *Raft) setElectionTimeout() {
-	rf.DPrintf("set new election timeout")
+	//rf.DPrintf("set new election timeout")
 	ms := rand.Intn(MaxElectionTimeout-MinElectionTimeout) + MinElectionTimeout
 	rf.electionTimeout = time.Now().Add(time.Duration(ms) * time.Millisecond)
 }

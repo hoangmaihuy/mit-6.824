@@ -1,0 +1,439 @@
+2021/08/29 20:26:15 disconnect(0)
+2021/08/29 20:26:15 disconnect(1)
+2021/08/29 20:26:15 disconnect(2)
+2021/08/29 20:26:15 disconnect(3)
+2021/08/29 20:26:15 disconnect(4)
+2021/08/29 20:26:15 connect(0)
+2021/08/29 20:26:15 connect(1)
+2021/08/29 20:26:15 connect(2)
+2021/08/29 20:26:15 connect(3)
+2021/08/29 20:26:15 connect(4)
+Test (2B): no agreement if too many followers disconnect ...
+2021/08/29 20:26:15 [raft 3, term 1] : startElection
+2021/08/29 20:26:15 [raft 1, term 1] : startElection
+2021/08/29 20:26:15 [raft 0, term 1] : startElection
+2021/08/29 20:26:15 [raft 4, term 1] : startElection
+2021/08/29 20:26:15 [raft 0, term 1] : RequestVote args = &{1 3 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 2, term 1] : startElection
+2021/08/29 20:26:15 [raft 3, term 1] : RequestVote args = &{1 0 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 2, term 1] : RequestVote args = &{1 0 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 4, term 1] : RequestVote args = &{1 0 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 1, term 1] : RequestVote args = &{1 0 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 0, term 1] : RequestVote args = &{1 1 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 1, term 1] : RequestVote args = &{1 3 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 2, term 1] : RequestVote args = &{1 3 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 3, term 1] : RequestVote args = &{1 4 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 3, term 1] : RequestVote args = &{1 1 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 1, term 1] : RequestVote args = &{1 2 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 1, term 1] : RequestVote args = &{1 4 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 3, term 1] : RequestVote args = &{1 2 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 2, term 1] : RequestVote args = &{1 4 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 4, term 1] : RequestVote args = &{1 2 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 2, term 1] : RequestVote args = &{1 1 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 0, term 1] : RequestVote args = &{1 4 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 0, term 1] : RequestVote args = &{1 2 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 4, term 1] : RequestVote args = &{1 3 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 4, term 1] : RequestVote args = &{1 1 0 0}, reply = &{1 false}
+2021/08/29 20:26:15 [raft 1, term 2] : startElection
+2021/08/29 20:26:15 [raft 0, term 2] : RequestVote args = &{2 1 0 0}, reply = &{2 true}
+2021/08/29 20:26:15 [raft 2, term 2] : RequestVote args = &{2 1 0 0}, reply = &{2 true}
+2021/08/29 20:26:15 [raft 3, term 2] : RequestVote args = &{2 1 0 0}, reply = &{2 true}
+2021/08/29 20:26:15 [raft 4, term 2] : RequestVote args = &{2 1 0 0}, reply = &{2 true}
+2021/08/29 20:26:15 [raft 1, term 2] : become new leader
+2021/08/29 20:26:15 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:15 [raft 1, term 2] : become new leader
+2021/08/29 20:26:15 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:15 [raft 1, term 2] : become new leader
+2021/08/29 20:26:15 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:15 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : claimed to be leader, start command = 10
+2021/08/29 20:26:15 [raft 1, term 2] : send all append entries, heartbeat = false
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 3, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 2, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 0, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 4, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:15 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:15 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:15 [raft 1, term 2] : applier wakes up, commitIndex = 1, lastApplied = 0
+2021/08/29 20:26:15 [raft 1, term 2] : applied entry = &{1 2 10}
+2021/08/29 20:26:15 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [] 0}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 3, term 2] : applier wakes up, commitIndex = 1, lastApplied = 0
+2021/08/29 20:26:15 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 3, term 2] : applied entry = &{1 2 10}
+2021/08/29 20:26:15 [raft 4, term 2] : applier wakes up, commitIndex = 1, lastApplied = 0
+2021/08/29 20:26:15 [raft 4, term 2] : applied entry = &{1 2 10}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 1, entries = []
+2021/08/29 20:26:15 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 2, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 3, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 4, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:15 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 0, term 2] : applier wakes up, commitIndex = 1, lastApplied = 0
+2021/08/29 20:26:15 [raft 0, term 2] : applied entry = &{1 2 10}
+2021/08/29 20:26:15 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 2, term 2] : applier wakes up, commitIndex = 1, lastApplied = 0
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:15 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:15 [raft 2, term 2] : applied entry = &{1 2 10}
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:15 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 4, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 2, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 3, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 4, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 2, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 2, server = 3, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 4, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 2, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 3, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 4, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 2, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 3, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:16 disconnect(2)
+2021/08/29 20:26:16 disconnect(3)
+2021/08/29 20:26:16 disconnect(4)
+2021/08/29 20:26:16 [raft 1, term 2] : claimed to be leader, start command = 20
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = false
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = false, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = false, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = false, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = false, nextIndex = 2
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 1 2 [{2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{2 2 20}]
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:16 [raft 4, term 3] : startElection
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:16 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:16 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:16 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:17 [raft 2, term 3] : startElection
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:17 [raft 3, term 3] : startElection
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 2, term 4] : startElection
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 3, term 4] : startElection
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 4, term 4] : startElection
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:17 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:17 [raft 4, term 5] : startElection
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:17 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:17 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:18 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 2, term 5] : startElection
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 3, term 5] : startElection
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:18 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 4, term 6] : startElection
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [{1 2 10} {2 2 20}] 1}, reply = &{2 true false}
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 3, entries = [{1 2 10} {2 2 20}]
+2021/08/29 20:26:18 connect(2)
+2021/08/29 20:26:18 connect(3)
+2021/08/29 20:26:18 connect(4)
+2021/08/29 20:26:18 [raft 1, term 2] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 2, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 4, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries, log len = 3, server = 3, isHeartbeat = true, nextIndex = 2
+2021/08/29 20:26:18 [raft 0, term 2] : AppendEntries args = &{2 1 0 0 [] 1}, reply = &{2 true false}
+2021/08/29 20:26:18 [raft 2, term 5] : AppendEntries args = &{2 1 1 2 [{2 2 20}] 1}, reply = &{5 false false}
+2021/08/29 20:26:18 [raft 1, term 2] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 3, term 5] : AppendEntries args = &{2 1 1 2 [{2 2 20}] 1}, reply = &{5 false false}
+2021/08/29 20:26:18 [raft 4, term 6] : AppendEntries args = &{2 1 1 2 [{2 2 20}] 1}, reply = &{6 false false}
+2021/08/29 20:26:18 [raft 4, term 7] : startElection
+2021/08/29 20:26:18 [raft 2, term 6] : startElection
+2021/08/29 20:26:18 [raft 0, term 7] : RequestVote args = &{7 4 1 2}, reply = &{7 false}
+2021/08/29 20:26:18 [raft 1, term 7] : RequestVote args = &{7 4 1 2}, reply = &{7 false}
+2021/08/29 20:26:18 [raft 3, term 7] : RequestVote args = &{7 4 1 2}, reply = &{7 true}
+2021/08/29 20:26:18 [raft 1, term 7] : RequestVote args = &{6 2 1 2}, reply = &{7 false}
+2021/08/29 20:26:18 [raft 2, term 7] : RequestVote args = &{7 4 1 2}, reply = &{7 true}
+2021/08/29 20:26:18 [raft 3, term 7] : RequestVote args = &{6 2 1 2}, reply = &{7 false}
+2021/08/29 20:26:18 [raft 4, term 7] : RequestVote args = &{6 2 1 2}, reply = &{7 false}
+2021/08/29 20:26:18 [raft 4, term 7] : become new leader
+2021/08/29 20:26:18 [raft 4, term 7] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 0, term 7] : RequestVote args = &{6 2 1 2}, reply = &{7 false}
+2021/08/29 20:26:18 [raft 0, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 1, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 2, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 3, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 1, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 2, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 2, server = 2, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 2, server = 1, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 2, server = 3, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:18 [raft 0, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 1, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 2, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 3, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 0, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 1, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 2, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 3, nextIndex = 2, entries = [{1 2 10}]
+2021/08/29 20:26:18 [raft 4, term 7] : send all append entries, heartbeat = true
+2021/08/29 20:26:18 [raft 0, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 1, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 2, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 3, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 1, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:18 [raft 4, term 7] : claimed to be leader, start command = 30
+2021/08/29 20:26:18 [raft 4, term 7] : send all append entries, heartbeat = false
+2021/08/29 20:26:18 [raft 4, term 7] : claimed to be leader, start command = 1000
+2021/08/29 20:26:18 [raft 4, term 7] : send all append entries, heartbeat = false
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 3, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 1, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 2, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 0, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 0, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 1, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 3, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 2, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 1, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 2, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 3, isHeartbeat = false, nextIndex = 1
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 1, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 2, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 3, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:18 [raft 1, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 2, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 0, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 2, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 1, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:18 [raft 0, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 0, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:18 [raft 3, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 1}, reply = &{7 true false}
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 0, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:18 [raft 4, term 7] : sendAllAppendEntries success, server = 3, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:19 [raft 4, term 7] : send all append entries, heartbeat = true
+2021/08/29 20:26:19 [raft 4, term 7] : applier wakes up, commitIndex = 3, lastApplied = 1
+2021/08/29 20:26:19 [raft 4, term 7] : applied entry = &{2 7 30}
+2021/08/29 20:26:19 [raft 4, term 7] : applied entry = &{3 7 1000}
+2021/08/29 20:26:19 [raft 2, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 0, term 7] : AppendEntries args = &{7 4 0 0 [] 3}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 3, term 7] : AppendEntries args = &{7 4 0 0 [] 3}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 1, term 7] : AppendEntries args = &{7 4 0 0 [] 1}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 0, term 7] : applier wakes up, commitIndex = 3, lastApplied = 1
+2021/08/29 20:26:19 [raft 0, term 7] : applied entry = &{2 7 30}
+2021/08/29 20:26:19 [raft 0, term 7] : applied entry = &{3 7 1000}
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 2, nextIndex = 1, entries = []
+2021/08/29 20:26:19 [raft 3, term 7] : applier wakes up, commitIndex = 3, lastApplied = 1
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 1, nextIndex = 1, entries = []
+2021/08/29 20:26:19 [raft 3, term 7] : applied entry = &{2 7 30}
+2021/08/29 20:26:19 [raft 3, term 7] : applied entry = &{3 7 1000}
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 3, nextIndex = 1, entries = []
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 0, nextIndex = 1, entries = []
+2021/08/29 20:26:19 [raft 4, term 7] : send all append entries, heartbeat = true
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 0, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 1, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 2, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries, log len = 4, server = 3, isHeartbeat = true, nextIndex = 1
+2021/08/29 20:26:19 [raft 0, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 3}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 1, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 3}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 2, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 3}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 3, term 7] : AppendEntries args = &{7 4 0 0 [{1 2 10} {2 7 30} {3 7 1000}] 3}, reply = &{7 true false}
+2021/08/29 20:26:19 [raft 2, term 7] : applier wakes up, commitIndex = 3, lastApplied = 1
+2021/08/29 20:26:19 [raft 2, term 7] : applied entry = &{2 7 30}
+2021/08/29 20:26:19 [raft 2, term 7] : applied entry = &{3 7 1000}
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 0, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:19 [raft 1, term 7] : applier wakes up, commitIndex = 3, lastApplied = 1
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 1, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:19 [raft 1, term 7] : applied entry = &{2 7 30}
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 2, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+2021/08/29 20:26:19 [raft 1, term 7] : applied entry = &{3 7 1000}
+2021/08/29 20:26:19 [raft 4, term 7] : sendAllAppendEntries success, server = 3, nextIndex = 4, entries = [{1 2 10} {2 7 30} {3 7 1000}]
+  ... Passed --   3.9  5  228   51138    3
+2021/08/29 20:26:19 [raft 0, term 7] : killed
+2021/08/29 20:26:19 [raft 1, term 7] : killed
+2021/08/29 20:26:19 [raft 2, term 7] : killed
+2021/08/29 20:26:19 [raft 3, term 7] : killed
+2021/08/29 20:26:19 [raft 4, term 7] : killed
+PASS
+ok  	6.824/raft	4.275s
