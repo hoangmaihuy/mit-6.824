@@ -10,9 +10,11 @@ type AppendEntriesArgs struct {
 }
 
 type AppendEntriesReply struct {
-	Term          int  // currentTerm, for leader to update itself
-	Success       bool // true if follower contained entry matching prevLogIndex and prevLogTerm
-	IsLogConflict bool
+	Term                   int  // currentTerm, for leader to update itself
+	Success                bool // true if follower contained entry matching prevLogIndex and prevLogTerm
+	IsLogConflict          bool
+	ConflictTerm           int
+	ConflictTermFirstIndex int
 }
 
 type RequestVoteArgs struct {

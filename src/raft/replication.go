@@ -8,6 +8,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 
 	rf.updateTermL(args.Term)
 	reply.Term = rf.currentTerm
+	reply.ConflictTerm = -1
+	reply.ConflictTermFirstIndex = -1
 
 	if args.Term < rf.currentTerm { // outdated leader
 		reply.Success = false
@@ -16,6 +18,15 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.setElectionTimeout()
 		reply.Success = false
 		reply.IsLogConflict = true
+		if prevEntry != nil {
+			reply.ConflictTerm = prevEntry.Term
+			conflictIndex := prevEntry.Index
+			for conflictEntry := rf.getEntry(conflictIndex); conflictEntry != nil && conflictEntry.Term == reply.ConflictTerm; {
+				conflictIndex--
+				conflictEntry = rf.getEntry(conflictIndex)
+			}
+			reply.ConflictTermFirstIndex = conflictIndex+1
+		}
 	} else {
 		rf.setElectionTimeout()
 		// not heartbeat message
@@ -80,9 +91,17 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 			rf.DPrintf("sendAllAppendEntries success, server = %v, nextIndex = %v", server, rf.nextIndex[server])
 		} else {
 			rf.updateTermL(reply.Term)
-			if reply.IsLogConflict && rf.nextIndex[server] > 1 {
-				rf.nextIndex[server] = args.PrevLogIndex
-				rf.matchIndex[server] = rf.nextIndex[server] - 1
+			if reply.IsLogConflict {
+				if reply.ConflictTermFirstIndex > 0 && reply.Term > 0 {
+					rf.nextIndex[server] = reply.ConflictTermFirstIndex
+					for entry := rf.getEntry(rf.nextIndex[server]); entry != nil && entry.Term == reply.ConflictTerm; {
+						rf.nextIndex[server]++
+					}
+					rf.matchIndex[server] = rf.nextIndex[server] - 1
+				} else {
+					rf.nextIndex[server] = args.PrevLogIndex
+					rf.matchIndex[server] = rf.nextIndex[server] - 1
+				}
 			}
 		}
 		rf.mu.Unlock()
