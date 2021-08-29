@@ -19,7 +19,7 @@ func (rf *Raft) ticker() {
 		} else {
 			_, isLeader := rf.GetState()
 			if isLeader {
-				rf.sendAllAppendEntries(true)
+				rf.sendAllAppendEntries(false)
 				rf.updateCommit()
 			}
 		}

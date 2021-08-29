@@ -24,14 +24,17 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 			rf.appendEntries(args.Entries...)
 		}
 		if args.LeaderCommit > rf.commitIndex {
+			oldCommitIndex := rf.commitIndex
 			rf.commitIndex = min(args.LeaderCommit, rf.lastEntry().Index)
-			rf.applyCond.Broadcast()
+			if oldCommitIndex != rf.commitIndex {
+				rf.applyCond.Broadcast()
+			}
 		}
 		reply.Success = true
 		reply.IsLogConflict = false
 	}
 
-	rf.DPrintf("AppendEntries args = %v, reply = %v", args, reply)
+	//rf.DPrintf("AppendEntries args = %v, reply = %v", args, reply)
 }
 
 func (rf *Raft) sendAllAppendEntries(isHeartbeat bool) {
@@ -47,7 +50,7 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 	reply := AppendEntriesReply{}
 
 	rf.mu.Lock()
-	if isHeartbeat && rf.nextIndex[server] > rf.lastEntry().Index {
+	if isHeartbeat {
 		args = AppendEntriesArgs{
 			Term:         rf.currentTerm,
 			LeaderId:     rf.me,
@@ -80,7 +83,7 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 		if reply.Success {
 			rf.nextIndex[server] = args.PrevLogIndex + len(args.Entries) + 1
 			rf.matchIndex[server] = rf.nextIndex[server] - 1
-			rf.DPrintf("sendAllAppendEntries success, server = %v, nextIndex = %v, entries = %v", server, rf.nextIndex[server], args.Entries)
+			rf.DPrintf("sendAllAppendEntries success, server = %v, nextIndex = %v", server, rf.nextIndex[server])
 		} else {
 			rf.updateTermL(reply.Term)
 			if reply.IsLogConflict && rf.nextIndex[server] > 1 {

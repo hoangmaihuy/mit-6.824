@@ -243,7 +243,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		}
 		rf.appendEntries(entry)
 		rf.persist()
-		rf.sendAllAppendEntries(false)
+		//rf.sendAllAppendEntries(false)
 	}
 
 	return index, term, isLeader
