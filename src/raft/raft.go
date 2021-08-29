@@ -253,7 +253,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		reply.Success = true
 	}
 
-	//DPrintf("AppendEntries: args = %v, reply = %v", args, reply)
+	DPrintf("raft %v AppendEntries: args = %v, reply = %v", rf.me, args, reply)
 }
 
 func (rf *Raft) sendAppendEntries(server int, args *AppendEntriesArgs, reply *AppendEntriesReply) bool {
@@ -291,6 +291,7 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 		}
 		rf.logs = append(rf.logs, entry)
 		rf.persist()
+		rf.sendEntries()
 	}
 
 	return index, term, isLeader

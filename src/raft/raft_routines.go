@@ -1,7 +1,6 @@
 package raft
 
 import (
-	"sync"
 	"time"
 )
 
@@ -15,13 +14,12 @@ func (rf *Raft) ticker() {
 
 		rf.mu.Lock()
 
-		if rf.state == Follower && time.Since(rf.lastHeartbeat) > rf.electionTimeout {
+		if rf.state != Leader && time.Since(rf.lastHeartbeat) > rf.electionTimeout {
 			// start an election
-			//DPrintf("raft %v started an election", rf.me)
 			rf.currentTerm = rf.currentTerm + 1
-			rf.persist()
 			rf.votedFor = rf.me
 			rf.persist()
+			DPrintf("raft %v, term = %v, started an election", rf.me, rf.currentTerm)
 			rf.state = Candidate
 			rf.lastHeartbeat = time.Now()
 			rf.resetElectionTimeout()
@@ -33,38 +31,25 @@ func (rf *Raft) ticker() {
 			}
 			rf.mu.Unlock()
 
-			mutex := sync.Mutex{}
 			voteCount := 0
 			for i := range rf.peers {
 				go func(server int) {
 					reply := RequestVoteReply{}
 					if rf.sendRequestVote(server, &args, &reply) {
+						rf.mu.Lock()
 						if reply.VoteGranted {
-							mutex.Lock()
 							voteCount++
-							mutex.Unlock()
 						}
+						rf.updateTerm(reply.Term)
+						if voteCount > len(rf.peers)/2 && args.Term == rf.currentTerm { // win majority
+							DPrintf("raft %v won election with voteCount = %v", rf.me, voteCount)
+							rf.state = Leader
+							rf.sendEntries()
+						}
+						rf.mu.Unlock()
 					}
 				}(i)
 			}
-
-			// wait for other servers to vote
-			time.Sleep(time.Second)
-
-			rf.mu.Lock()
-			mutex.Lock()
-			if voteCount > len(rf.peers)/2 { // win majority
-				DPrintf("raft %v won election with voteCount = %v", rf.me, voteCount)
-				rf.state = Leader
-				rf.sendEntries()
-			} else {
-				//DPrintf("raft %v lost election with voteCount = %v", rf.me, voteCount)
-				rf.state = Follower
-				rf.votedFor = -1
-				rf.persist()
-			}
-			mutex.Unlock()
-			rf.mu.Unlock()
 		} else {
 			rf.mu.Unlock()
 		}
@@ -113,9 +98,10 @@ func (rf *Raft) sendEntries() {
 		if i != rf.me {
 			go func(i int) {
 				rf.mu.Lock()
+				rf.nextIndex[i] = min(rf.lastEntry().Index+1, rf.nextIndex[i])
 				nextIndex := rf.nextIndex[i]
 				//fmt.Printf("leader %v sendEntries to raft %v, nextIndex = %v\n", rf.me, i, nextIndex)
-				nextEntries := rf.getEntries(nextIndex, 5)
+				nextEntries := rf.getEntries(nextIndex, 10)
 				args := AppendEntriesArgs{
 					Term:         rf.currentTerm,
 					LeaderId:     rf.me,
@@ -126,15 +112,22 @@ func (rf *Raft) sendEntries() {
 				}
 				rf.mu.Unlock()
 				reply := AppendEntriesReply{}
-				rf.sendAppendEntries(i, &args, &reply)
-				rf.mu.Lock()
-				if reply.Success {
-					rf.nextIndex[i] = nextIndex + len(nextEntries)
-					rf.matchIndex[i] = rf.nextIndex[i] - 1
-				} else if rf.nextIndex[i] > 1 {
-					rf.nextIndex[i]--
+				if rf.sendAppendEntries(i, &args, &reply) {
+					rf.mu.Lock()
+					rf.updateTerm(reply.Term)
+					if rf.currentTerm == args.Term {
+						if reply.Success {
+							rf.nextIndex[i] = nextIndex + len(nextEntries)
+							rf.matchIndex[i] = rf.nextIndex[i] - 1
+						} else if rf.nextIndex[i] > 1 {
+							rf.nextIndex[i] -= len(nextEntries)
+							if rf.nextIndex[i] <= 1 {
+								rf.nextIndex[i] = 1
+							}
+						}
+					}
+					rf.mu.Unlock()
 				}
-				rf.mu.Unlock()
 			}(i)
 		}
 	}
