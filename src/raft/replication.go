@@ -34,7 +34,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		reply.IsLogConflict = false
 	}
 
-	//rf.DPrintf("AppendEntries args = %v, reply = %v", args, reply)
+	rf.DPrintf("AppendEntries args = %v, reply = %v", args, reply)
 }
 
 func (rf *Raft) sendAllAppendEntries(isHeartbeat bool) {
@@ -50,28 +50,22 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 	reply := AppendEntriesReply{}
 
 	rf.mu.Lock()
+	nextIndex := rf.nextIndex[server]
+	rf.DPrintf("sendAllAppendEntries, log len = %v, server = %v, isHeartbeat = %v, nextIndex = %v", rf.getLogLen(), server, isHeartbeat, nextIndex)
+	prevEntry := rf.getEntry(nextIndex - 1)
+	var entries []Entry
 	if isHeartbeat {
-		args = AppendEntriesArgs{
-			Term:         rf.currentTerm,
-			LeaderId:     rf.me,
-			PrevLogIndex: 0,
-			PrevLogTerm:  0,
-			Entries:      make([]Entry, 0),
-			LeaderCommit: rf.commitIndex,
-		}
+		entries = make([]Entry, 0)
 	} else {
-		nextIndex := rf.nextIndex[server]
-		rf.DPrintf("sendAllAppendEntries, log len = %v, server = %v, isHeartbeat = %v, nextIndex = %v", rf.getLogLen(), server, isHeartbeat, nextIndex)
-		prevEntry := rf.getEntry(nextIndex-1)
-		entries := rf.getEntries(nextIndex, MaxAppendEntriesSize)
-		args = AppendEntriesArgs{
-			Term:         rf.currentTerm,
-			LeaderId:     rf.me,
-			PrevLogIndex: prevEntry.Index,
-			PrevLogTerm:  prevEntry.Term,
-			Entries:      entries,
-			LeaderCommit: rf.commitIndex,
-		}
+		entries = rf.getEntries(nextIndex, MaxAppendEntriesSize)
+	}
+	args = AppendEntriesArgs{
+		Term:         rf.currentTerm,
+		LeaderId:     rf.me,
+		PrevLogIndex: prevEntry.Index,
+		PrevLogTerm:  prevEntry.Term,
+		Entries:      entries,
+		LeaderCommit: rf.commitIndex,
 	}
 	rf.mu.Unlock()
 
