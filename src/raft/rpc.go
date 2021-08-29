@@ -5,13 +5,14 @@ type AppendEntriesArgs struct {
 	LeaderId     int     // So follower can redirect clients
 	PrevLogIndex int     // Index of log entry immediately preceding new ones
 	PrevLogTerm  int     // Term of prevLogIndex entry
-	Entries      []Entry // log entries to store (empty for heartbeat; may send more than one for efficiency)
+	Entries      []Entry // log Entries to store (empty for heartbeat; may send more than one for efficiency)
 	LeaderCommit int     // leader’s commitIndex
 }
 
 type AppendEntriesReply struct {
-	Term    int  // currentTerm, for leader to update itself
-	Success bool // true if follower contained entry matching prevLogIndex and prevLogTerm
+	Term          int  // currentTerm, for leader to update itself
+	Success       bool // true if follower contained entry matching prevLogIndex and prevLogTerm
+	IsLogConflict bool
 }
 
 type RequestVoteArgs struct {
