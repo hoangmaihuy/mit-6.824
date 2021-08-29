@@ -757,6 +757,7 @@ func TestFigure82C(t *testing.T) {
 				nup += 1
 			}
 		}
+		DPrintf("connected servers = %v\n", cfg.connected)
 	}
 
 	for i := 0; i < servers; i++ {

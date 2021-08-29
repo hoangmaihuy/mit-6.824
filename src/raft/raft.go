@@ -123,8 +123,8 @@ func (rf *Raft) updateTermL(term int) {
 	if rf.currentTerm < term {
 		rf.currentTerm = term
 		rf.votedFor = -1
-		rf.state = Follower
 		rf.persist()
+		rf.state = Follower
 	}
 }
 //

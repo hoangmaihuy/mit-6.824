@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-const MinElectionTimeout = 300 // milliseconds
-const MaxElectionTimeout = 700 // milliseconds
+const MinElectionTimeout = 500 // milliseconds
+const MaxElectionTimeout = 1000 // milliseconds
 
 // RPC handler
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
@@ -23,11 +23,12 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		reply.VoteGranted = false
 	} else if (rf.votedFor == -1 && isUpToDate) || rf.votedFor == args.CandidateId {
 		// haven't voted for other candidates or voted for this candidate
+		rf.setElectionTimeout()
 		reply.VoteGranted = true
 		rf.votedFor = args.CandidateId
 		rf.persist()
-		rf.setElectionTimeout()
 	} else {
+		rf.setElectionTimeout()
 		reply.VoteGranted = false
 	}
 	rf.DPrintf("RequestVote args = %v, reply = %v", args, reply)
@@ -79,7 +80,7 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, voteCount *in
 		rf.setElectionTimeout()
 		if reply.VoteGranted {
 			*voteCount++
-			if *voteCount > len(rf.peers)/2 && rf.currentTerm == args.Term {
+			if *voteCount == len(rf.peers)/2+1 && rf.currentTerm == args.Term {
 				rf.becomeLeaderL()
 				rf.sendAllAppendEntries(true)
 			}

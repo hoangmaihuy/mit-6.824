@@ -1,6 +1,6 @@
 package raft
 
-const MaxAppendEntriesSize = 3
+const MaxAppendEntriesSize = 5
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
@@ -92,10 +92,11 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 		} else {
 			rf.updateTermL(reply.Term)
 			if reply.IsLogConflict {
-				if reply.ConflictTermFirstIndex > 0 && reply.Term > 0 {
+				if reply.ConflictTermFirstIndex > 0 && reply.ConflictTerm > 0 {
 					rf.nextIndex[server] = reply.ConflictTermFirstIndex
 					for entry := rf.getEntry(rf.nextIndex[server]); entry != nil && entry.Term == reply.ConflictTerm; {
 						rf.nextIndex[server]++
+						entry = rf.getEntry(rf.nextIndex[server])
 					}
 					rf.matchIndex[server] = rf.nextIndex[server] - 1
 				} else {
