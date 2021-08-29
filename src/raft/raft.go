@@ -127,6 +127,7 @@ func (rf *Raft) updateTermL(term int) {
 		rf.state = Follower
 	}
 }
+
 //
 // A service wants to switch to snapshot.  Only do so if Raft hasn't
 // have more recent info since it communicate the snapshot on applyCh.
@@ -209,6 +210,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	// start ticker goroutine to start elections
 	go rf.ticker()
 
+	// start applier goroutine to commit and apply command
 	go rf.applier()
 	return rf
 }

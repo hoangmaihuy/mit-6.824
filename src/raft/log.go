@@ -55,6 +55,8 @@ func (rf *Raft) eraseEntries(fromIndex int) {
 }
 
 func (rf *Raft) appendEntries(newEntries ...Entry) {
-	rf.log.Entries = append(rf.log.Entries, newEntries...)
+	entries := make([]Entry, len(newEntries))
+	copy(entries, newEntries)
+	rf.log.Entries = append(rf.log.Entries, entries...)
 	rf.persist()
 }

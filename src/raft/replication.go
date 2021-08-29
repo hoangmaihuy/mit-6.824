@@ -1,6 +1,6 @@
 package raft
 
-const MaxAppendEntriesSize = 5
+const MaxAppendEntriesSize = 100
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
@@ -18,10 +18,14 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		rf.setElectionTimeout()
 		reply.Success = false
 		reply.IsLogConflict = true
+		// follower may be fallback far behind leader, so use last entry to quickly catch up
+		if prevEntry == nil {
+			prevEntry = rf.lastEntry()
+		}
 		if prevEntry != nil {
 			reply.ConflictTerm = prevEntry.Term
 			conflictIndex := prevEntry.Index
-			for conflictEntry := rf.getEntry(conflictIndex); conflictEntry != nil && conflictEntry.Term == reply.ConflictTerm; {
+			for conflictEntry := rf.getEntry(conflictIndex); conflictIndex > 0 && conflictEntry != nil && conflictEntry.Term == reply.ConflictTerm; {
 				conflictIndex--
 				conflictEntry = rf.getEntry(conflictIndex)
 			}
@@ -29,7 +33,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		}
 	} else {
 		rf.setElectionTimeout()
-		// not heartbeat message
+		// not a heartbeat message
 		if len(args.Entries) > 0 {
 			rf.eraseEntries(args.PrevLogIndex + 1)
 			rf.appendEntries(args.Entries...)
@@ -94,10 +98,6 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 			if reply.IsLogConflict {
 				if reply.ConflictTermFirstIndex > 0 && reply.ConflictTerm > 0 {
 					rf.nextIndex[server] = reply.ConflictTermFirstIndex
-					for entry := rf.getEntry(rf.nextIndex[server]); entry != nil && entry.Term == reply.ConflictTerm; {
-						rf.nextIndex[server]++
-						entry = rf.getEntry(rf.nextIndex[server])
-					}
 					rf.matchIndex[server] = rf.nextIndex[server] - 1
 				} else {
 					rf.nextIndex[server] = args.PrevLogIndex
