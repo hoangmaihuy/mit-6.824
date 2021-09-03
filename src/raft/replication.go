@@ -14,20 +14,20 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	if args.Term < rf.currentTerm { // outdated leader
 		reply.Success = false
 		reply.IsLogConflict = false
-	} else if prevEntry := rf.getEntry(args.PrevLogIndex); prevEntry == nil || prevEntry.Term != args.PrevLogTerm {
+	} else if prevEntry := rf.getLogEntry(args.PrevLogIndex); prevEntry == nil || prevEntry.Term != args.PrevLogTerm {
 		rf.setElectionTimeout()
 		reply.Success = false
 		reply.IsLogConflict = true
 		// follower may be fallback far behind leader, so use last entry to quickly catch up
 		if prevEntry == nil {
-			prevEntry = rf.lastEntry()
+			prevEntry = rf.lastLogEntry()
 		}
 		if prevEntry != nil {
 			reply.ConflictTerm = prevEntry.Term
 			conflictIndex := prevEntry.Index
-			for conflictEntry := rf.getEntry(conflictIndex); conflictIndex > 0 && conflictEntry != nil && conflictEntry.Term == reply.ConflictTerm; {
+			for conflictEntry := rf.getLogEntry(conflictIndex); conflictIndex > rf.log.StartIndex && conflictEntry != nil && conflictEntry.Term == reply.ConflictTerm; {
 				conflictIndex--
-				conflictEntry = rf.getEntry(conflictIndex)
+				conflictEntry = rf.getLogEntry(conflictIndex)
 			}
 			reply.ConflictTermFirstIndex = conflictIndex+1
 		}
@@ -40,10 +40,11 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		}
 		if args.LeaderCommit > rf.commitIndex {
 			oldCommitIndex := rf.commitIndex
-			rf.commitIndex = min(args.LeaderCommit, rf.lastEntry().Index)
+			rf.commitIndex = min(args.LeaderCommit, rf.lastLogEntry().Index)
 			if oldCommitIndex != rf.commitIndex {
 				rf.applyCond.Broadcast()
 			}
+			rf.DPrintf("update commitIndex, old = %v, new = %v", oldCommitIndex, rf.commitIndex)
 		}
 		reply.Success = true
 		reply.IsLogConflict = false
@@ -61,18 +62,25 @@ func (rf *Raft) sendAllAppendEntries(isHeartbeat bool) {
 	}
 }
 func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
-	args := AppendEntriesArgs{}
-	reply := AppendEntriesReply{}
-
 	rf.mu.Lock()
 	nextIndex := rf.nextIndex[server]
-	rf.DPrintf("sendAllAppendEntries, log len = %v, server = %v, isHeartbeat = %v, nextIndex = %v", rf.getLogLen(), server, isHeartbeat, nextIndex)
-	prevEntry := rf.getEntry(nextIndex - 1)
+	if nextIndex <= rf.log.StartIndex {
+		rf.sendInstallSnapshotL(server)
+	} else {
+		rf.sendAppendEntriesL(server, nextIndex, isHeartbeat)
+	}
+}
+
+func (rf *Raft) sendAppendEntriesL(server int, nextIndex int, isHeartbeat bool) {
+	args := AppendEntriesArgs{}
+	reply := AppendEntriesReply{}
+	rf.DPrintf("sendAppendEntriesL, log = %v, server = %v, isHeartbeat = %v, nextIndex = %v", rf.log.Entries, server, isHeartbeat, nextIndex)
+	prevEntry := rf.getLogEntry(nextIndex - 1)
 	var entries []Entry
 	if isHeartbeat {
 		entries = make([]Entry, 0)
 	} else {
-		entries = rf.getEntries(nextIndex, MaxAppendEntriesSize)
+		entries = rf.getLogEntries(nextIndex, MaxAppendEntriesSize)
 	}
 	args = AppendEntriesArgs{
 		Term:         rf.currentTerm,
@@ -92,7 +100,7 @@ func (rf *Raft) sendAppendEntries(server int, isHeartbeat bool) {
 		if reply.Success {
 			rf.nextIndex[server] = args.PrevLogIndex + len(args.Entries) + 1
 			rf.matchIndex[server] = rf.nextIndex[server] - 1
-			rf.DPrintf("sendAllAppendEntries success, server = %v, nextIndex = %v", server, rf.nextIndex[server])
+			rf.DPrintf("sendAppendEntriesL success, server = %v, nextIndex = %v", server, rf.nextIndex[server])
 		} else {
 			rf.updateTermL(reply.Term)
 			if reply.IsLogConflict {

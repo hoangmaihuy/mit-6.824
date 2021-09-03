@@ -6,3 +6,4 @@ api.key
 *-handin.tar.gz
 
 *log.txt
+*.DS_Store

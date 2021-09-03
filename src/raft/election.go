@@ -16,7 +16,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	rf.updateTermL(args.Term)
 
 	reply.Term = rf.currentTerm
-	lastEntry := rf.lastEntry()
+	lastEntry := rf.lastLogEntry()
 	isUpToDate := (lastEntry.Term < args.LastLogTerm) || (lastEntry.Term == args.LastLogTerm && lastEntry.Index <= args.LastLogIndex)
 	// current raft's term is more up-to-date so reject candidate's election
 	if args.Term < rf.currentTerm {
@@ -60,8 +60,8 @@ func (rf *Raft) sendAllRequestVotesL() {
 	args := RequestVoteArgs{
 		Term:         rf.currentTerm,
 		CandidateId:  rf.me,
-		LastLogIndex: rf.lastEntry().Index,
-		LastLogTerm:  rf.lastEntry().Term,
+		LastLogIndex: rf.lastLogEntry().Index,
+		LastLogTerm:  rf.lastLogEntry().Term,
 	}
 	voteCount := 1
 	for i := range rf.peers {
@@ -94,6 +94,6 @@ func (rf *Raft) becomeLeaderL() {
 	rf.DPrintf("become new leader")
 	rf.state = Leader
 	for i := range rf.nextIndex {
-		rf.nextIndex[i] = rf.lastEntry().Index + 1
+		rf.nextIndex[i] = rf.lastLogEntry().Index + 1
 	}
 }

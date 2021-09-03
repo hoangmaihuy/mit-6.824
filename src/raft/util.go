@@ -5,7 +5,7 @@ import (
 )
 
 // Debugging
-const Debug = false
+const Debug = true
 
 func DPrintf(format string, a ...interface{})  {
 	if Debug {
@@ -24,6 +24,14 @@ func (rf *Raft) DPrintf(format string, a ...interface{})  {
 
 func min(a int, b int) int {
 	if a < b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func max(a int, b int) int {
+	if a > b {
 		return a
 	} else {
 		return b

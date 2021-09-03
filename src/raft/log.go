@@ -15,7 +15,11 @@ func makeLog() Log {
 	return Log{
 		StartIndex: 0,
 		Entries: []Entry{
-			{Index: 0, Term: 0, Command: nil},
+			{
+				Index:   0,
+				Term:    0,
+				Command: nil,
+			},
 		},
 	}
 }
@@ -24,21 +28,22 @@ func (rf *Raft) getLogLen() int {
 	return len(rf.log.Entries)
 }
 
-// get last log entry, assume that there is always one dummy entry with index = 0
-func (rf *Raft) lastEntry() *Entry {
-	return rf.getEntry(len(rf.log.Entries)-1)
+func (rf *Raft) lastLogEntry() *Entry {
+	return &rf.log.Entries[len(rf.log.Entries)-1]
 }
 
-func (rf *Raft) getEntry(index int) *Entry {
-	//DPrintf("raft %v getEntry: index = %v", rf.me, index)
-	if index >= len(rf.log.Entries) {
+func (rf *Raft) getLogEntry(index int) *Entry {
+	//DPrintf("raft %v LoggetLogEntry: index = %v", rf.me, index)
+	index -= rf.log.StartIndex
+	if index >= len(rf.log.Entries) || index < 0 {
 		return nil
 	}
 	return &rf.log.Entries[index]
 }
 
-func (rf *Raft) getEntries(fromIndex int, size int) []Entry {
-	//fmt.Printf("getEntries: [%v, %v]\n", fromIndex, size)
+func (rf *Raft) getLogEntries(fromIndex int, size int) []Entry {
+	//fmt.Printf("getLogEntries: [%v, %v]\n", fromIndex, size)
+	fromIndex -= rf.log.StartIndex
 	if fromIndex >= len(rf.log.Entries) {
 		return make([]Entry, 0)
 	}
@@ -50,6 +55,7 @@ func (rf *Raft) getEntries(fromIndex int, size int) []Entry {
 
 // use when log Entries conflict
 func (rf *Raft) eraseEntries(fromIndex int) {
+	fromIndex -= rf.log.StartIndex
 	rf.log.Entries = rf.log.Entries[:fromIndex]
 	rf.persist()
 }

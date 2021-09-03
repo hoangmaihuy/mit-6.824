@@ -50,9 +50,11 @@ type Raft struct {
 	applyCond *sync.Cond
 
 	// persistent state
-	currentTerm int // Latest term server has seen (initialized to 0 on first boot, increases monotonically)
-	votedFor    int // CandidateId that received vote in current term (or -1 if none)
-	log         Log
+	currentTerm       int // Latest term server has seen (initialized to 0 on first boot, increases monotonically)
+	votedFor          int // CandidateId that received vote in current term (or -1 if none)
+	log               Log
+	lastIncludedTerm  int
+	lastIncludedIndex int
 
 	// volatile
 	state           RaftState // Current state of server
@@ -90,6 +92,8 @@ func (rf *Raft) persist() {
 	e.Encode(rf.currentTerm)
 	e.Encode(rf.votedFor)
 	e.Encode(rf.log)
+	e.Encode(rf.lastIncludedTerm)
+	e.Encode(rf.lastIncludedTerm)
 	data := w.Bytes()
 	rf.persister.SaveRaftState(data)
 }
@@ -106,7 +110,10 @@ func (rf *Raft) readPersist(data []byte) {
 	var currentTerm int
 	var votedFor int
 	var log Log
-	if d.Decode(&currentTerm) != nil || d.Decode(&votedFor) != nil || d.Decode(&log) != nil {
+	var lastIncludedTerm int
+	var lastIncludedIndex int
+	if d.Decode(&currentTerm) != nil || d.Decode(&votedFor) != nil || d.Decode(&log) != nil ||
+		 d.Decode(&lastIncludedTerm) != nil || d.Decode(&lastIncludedIndex) != nil {
 		rf.DPrintf("readPersist failed")
 	} else {
 		rf.mu.Lock()
@@ -114,6 +121,8 @@ func (rf *Raft) readPersist(data []byte) {
 		rf.currentTerm = currentTerm
 		rf.votedFor = votedFor
 		rf.log = log
+		rf.lastIncludedTerm = lastIncludedTerm
+		rf.lastIncludedIndex = lastIncludedIndex
 		rf.DPrintf("readPersist success: log = %v", rf.log)
 	}
 }
@@ -126,26 +135,6 @@ func (rf *Raft) updateTermL(term int) {
 		rf.persist()
 		rf.state = Follower
 	}
-}
-
-//
-// A service wants to switch to snapshot.  Only do so if Raft hasn't
-// have more recent info since it communicate the snapshot on applyCh.
-//
-func (rf *Raft) CondInstallSnapshot(lastIncludedTerm int, lastIncludedIndex int, snapshot []byte) bool {
-
-	// Your code here (2D).
-
-	return true
-}
-
-// the service says it has created a snapshot that has
-// all info up to and including index. this means the
-// service no longer needs the log through (and including)
-// that index. Raft should now trim its log as much as possible.
-func (rf *Raft) Snapshot(index int, snapshot []byte) {
-	// Your code here (2D).
-
 }
 
 //
@@ -206,6 +195,10 @@ func Make(peers []*labrpc.ClientEnd, me int,
 	rf.matchIndex = make([]int, len(peers))
 	// initialize from state persisted before a crash
 	rf.readPersist(persister.ReadRaftState())
+	rf.mu.Lock()
+	rf.lastApplied = rf.lastIncludedIndex
+	rf.commitIndex = rf.lastIncludedIndex
+	rf.mu.Unlock()
 
 	// start ticker goroutine to start elections
 	go rf.ticker()
@@ -232,7 +225,7 @@ func Make(peers []*labrpc.ClientEnd, me int,
 func (rf *Raft) Start(command interface{}) (int, int, bool) {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	index := rf.lastEntry().Index + 1
+	index := rf.lastLogEntry().Index + 1
 	term := rf.currentTerm
 	isLeader := rf.state == Leader
 
@@ -265,7 +258,9 @@ func (rf *Raft) Start(command interface{}) (int, int, bool) {
 func (rf *Raft) Kill() {
 	atomic.StoreInt32(&rf.dead, 1)
 	// Your code here, if desired.
+	rf.mu.Lock()
 	rf.DPrintf("killed")
+	rf.mu.Unlock()
 }
 
 func (rf *Raft) killed() bool {

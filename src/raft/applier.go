@@ -26,7 +26,7 @@ type ApplyMsg struct {
 func (rf *Raft) updateCommit() {
 	rf.mu.Lock()
 	defer rf.mu.Unlock()
-	lastIndex := rf.lastEntry().Index
+	lastIndex := rf.lastLogEntry().Index
 	rf.matchIndex[rf.me] = lastIndex
 	for i := rf.commitIndex + 1; i <= lastIndex; i++ {
 		matchCount := 0
@@ -35,8 +35,8 @@ func (rf *Raft) updateCommit() {
 				matchCount++
 			}
 		}
-		//DPrintf("leader raft %v updateCommit: index = %v, matchCount = %v", rf.me, i, matchCount)
-		if matchCount > len(rf.peers)/2 && rf.getEntry(i).Term == rf.currentTerm {
+		rf.DPrintf("updateCommit: index = %v, matchCount = %v", i, matchCount)
+		if matchCount > len(rf.peers)/2 && rf.getLogEntry(i).Term == rf.currentTerm {
 			rf.commitIndex = i
 			rf.applyCond.Broadcast()
 		}
@@ -47,13 +47,17 @@ func (rf *Raft) applier() {
 	for rf.killed() == false {
 		rf.mu.Lock()
 		if rf.commitIndex == rf.lastApplied {
+			rf.DPrintf("applier sleep, commitIndex = %v, lastApplied = %v", rf.commitIndex, rf.lastApplied)
 			rf.applyCond.Wait()
 		}
 		commitIndex := rf.commitIndex
+		lastApplied := rf.lastApplied
 		rf.DPrintf("applier wakes up, commitIndex = %v, lastApplied = %v", commitIndex, rf.lastApplied)
 		rf.mu.Unlock()
-		for ; rf.lastApplied < commitIndex; rf.lastApplied++ {
-			entry := rf.getEntry(rf.lastApplied+1)
+		for ; lastApplied < commitIndex; {
+			rf.mu.Lock()
+			entry := rf.getLogEntry(lastApplied+1)
+			rf.mu.Unlock()
 			rf.applyCh <- ApplyMsg{
 				CommandValid:  true,
 				Command:       entry.Command,
@@ -63,6 +67,12 @@ func (rf *Raft) applier() {
 				SnapshotTerm:  0,
 				SnapshotIndex: 0,
 			}
+			rf.DPrintf("committed index = %v", entry.Index)
+			rf.mu.Lock()
+			rf.lastApplied = max(rf.lastApplied, lastApplied+1)
+			lastApplied = rf.lastApplied
+			commitIndex = rf.commitIndex
+			rf.mu.Unlock()
 			rf.DPrintf("applied entry = %v", entry)
 		}
 	}
