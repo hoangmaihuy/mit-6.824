@@ -6,14 +6,21 @@ import (
 )
 
 func (rf *Raft) InstallSnapshot(args *InstallSnapshotArgs, reply *InstallSnapshotReply) {
-	ok := rf.CondInstallSnapshot(args.LastIncludedTerm, args.LastIncludedIndex, args.Snapshot)
 	rf.mu.Lock()
 	reply.Term = rf.currentTerm
-	if ok {
-		rf.setElectionTimeout()
-	}
+	rf.setElectionTimeout()
 	rf.DPrintf("InstallSnapshot: args = %v, reply = %v", args, reply)
 	rf.mu.Unlock()
+
+	rf.applyCh <- ApplyMsg{
+		CommandValid:  false,
+		Command:       nil,
+		CommandIndex:  0,
+		SnapshotValid: true,
+		Snapshot:      args.Snapshot,
+		SnapshotTerm:  args.LastIncludedTerm,
+		SnapshotIndex: args.LastIncludedIndex,
+	}
 }
 
 func (rf *Raft) sendInstallSnapshotL(server int) {
@@ -21,8 +28,8 @@ func (rf *Raft) sendInstallSnapshotL(server int) {
 	args := InstallSnapshotArgs{
 		Term:              rf.currentTerm,
 		LeaderId:          rf.me,
-		LastIncludedIndex: rf.lastIncludedTerm,
-		LastIncludedTerm:  rf.lastIncludedIndex,
+		LastIncludedIndex: rf.lastIncludedIndex,
+		LastIncludedTerm:  rf.lastIncludedTerm,
 		Snapshot:          snapshot,
 	}
 	reply := InstallSnapshotReply{}
@@ -44,20 +51,21 @@ func (rf *Raft) sendInstallSnapshotL(server int) {
 // have more recent info since it communicate the snapshot on applyCh.
 //
 func (rf *Raft) CondInstallSnapshot(lastIncludedTerm int, lastIncludedIndex int, snapshot []byte) bool {
-	rf.DPrintf("CondInstallSnapshot: term = %v, index = %v", lastIncludedIndex, lastIncludedIndex)
+	rf.DPrintf("CondInstallSnapshot: term = %v, index = %v", lastIncludedTerm, lastIncludedIndex)
 	rf.mu.Lock()
+	defer rf.mu.Unlock()
 	lastEntry := rf.lastLogEntry()
 	lastTerm := lastEntry.Term
 	lastIndex := lastEntry.Index
 	if lastTerm < lastIncludedTerm || (lastTerm == lastIncludedTerm && lastIndex < lastIncludedIndex) {
+		rf.currentTerm = lastIncludedTerm
 		rf.lastIncludedTerm = lastIncludedTerm
 		rf.lastIncludedIndex = lastIncludedIndex
 		rf.updateTermL(lastIncludedTerm)
-		rf.mu.Unlock()
-		rf.Snapshot(lastIncludedIndex, snapshot)
+		go rf.Snapshot(lastIncludedIndex, snapshot)
 		return true
 	} else {
-		rf.mu.Unlock()
+		rf.DPrintf("refuse install snapshot, lastTerm = %v, lastIndex = %v, snapshotTerm = %v, snapshotIndex = %v", lastTerm, lastIndex, lastIncludedTerm, lastIncludedIndex)
 		//rf.applyCh <- ApplyMsg{
 		//	CommandValid:  false,
 		//	Command:       nil,
@@ -79,7 +87,6 @@ func (rf *Raft) Snapshot(index int, snapshot []byte) {
 	// Your code here (2D).
 	rf.DPrintf("begin snapshot: index = %v", index)
 	rf.mu.Lock()
-	term := rf.currentTerm
 	lastIndex := rf.lastLogEntry().Index
 	trimmedEntries := rf.getLogEntries(index, lastIndex-index+1)
 	rf.lastIncludedIndex = index
@@ -94,9 +101,7 @@ func (rf *Raft) Snapshot(index int, snapshot []byte) {
 			Command: nil,
 		})
 	}
-	applySnapshot := rf.lastApplied < rf.lastIncludedIndex
 	rf.commitIndex = max(rf.commitIndex, index)
-	rf.lastApplied = max(rf.lastApplied, rf.lastIncludedIndex)
 	rf.log.StartIndex = index
 	rf.log.Entries = trimmedEntries
 	// save raft state and snapshot
@@ -109,19 +114,7 @@ func (rf *Raft) Snapshot(index int, snapshot []byte) {
 	e.Encode(rf.lastIncludedIndex)
 	state := w.Bytes()
 	rf.persister.SaveStateAndSnapshot(state, snapshot)
-	rf.DPrintf("finish save state and snapshot")
-	rf.mu.Unlock()
-	if applySnapshot {
-		rf.DPrintf("switch to snapshot index = %v", index)
-		rf.applyCh <- ApplyMsg{
-			CommandValid:  false,
-			Command:       nil,
-			CommandIndex:  0,
-			SnapshotValid: true,
-			Snapshot:      snapshot,
-			SnapshotTerm:  term,
-			SnapshotIndex: index,
-		}
-	}
+	rf.lastApplied = max(rf.lastApplied, rf.lastIncludedIndex)
 	rf.DPrintf("end snapshot: index = %v", index)
+	rf.mu.Unlock()
 }

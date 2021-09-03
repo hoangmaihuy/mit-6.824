@@ -14,6 +14,11 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 	if args.Term < rf.currentTerm { // outdated leader
 		reply.Success = false
 		reply.IsLogConflict = false
+	} else if args.PrevLogIndex < rf.log.StartIndex {
+		reply.Success = false
+		reply.IsLogConflict = true
+		reply.ConflictTermFirstIndex = rf.log.StartIndex
+		reply.ConflictTerm = rf.log.Entries[0].Term
 	} else if prevEntry := rf.getLogEntry(args.PrevLogIndex); prevEntry == nil || prevEntry.Term != args.PrevLogTerm {
 		rf.setElectionTimeout()
 		reply.Success = false
@@ -24,8 +29,8 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		}
 		if prevEntry != nil {
 			reply.ConflictTerm = prevEntry.Term
-			conflictIndex := prevEntry.Index
-			for conflictEntry := rf.getLogEntry(conflictIndex); conflictIndex > rf.log.StartIndex && conflictEntry != nil && conflictEntry.Term == reply.ConflictTerm; {
+			conflictIndex := prevEntry.Index-1
+			for conflictEntry := rf.getLogEntry(conflictIndex); conflictIndex >= rf.log.StartIndex && conflictEntry != nil && conflictEntry.Term == reply.ConflictTerm; {
 				conflictIndex--
 				conflictEntry = rf.getLogEntry(conflictIndex)
 			}
@@ -50,7 +55,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		reply.IsLogConflict = false
 	}
 
-	rf.DPrintf("AppendEntries args = %v, reply = %v", args, reply)
+	rf.DPrintf("AppendEntries, log = %v, args = %v, reply = %v", rf.log, args, reply)
 }
 
 func (rf *Raft) sendAllAppendEntries(isHeartbeat bool) {

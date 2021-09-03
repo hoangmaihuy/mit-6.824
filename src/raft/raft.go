@@ -93,7 +93,7 @@ func (rf *Raft) persist() {
 	e.Encode(rf.votedFor)
 	e.Encode(rf.log)
 	e.Encode(rf.lastIncludedTerm)
-	e.Encode(rf.lastIncludedTerm)
+	e.Encode(rf.lastIncludedIndex)
 	data := w.Bytes()
 	rf.persister.SaveRaftState(data)
 }

@@ -31,7 +31,7 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 		rf.setElectionTimeout()
 		reply.VoteGranted = false
 	}
-	rf.DPrintf("RequestVote args = %v, reply = %v", args, reply)
+	rf.DPrintf("RequestVote, log = %v, args = %v, reply = %v", rf.log, args, reply)
 }
 
 // set electionTimeout to a random duration
