@@ -8,9 +8,11 @@ import "crypto/rand"
 import "math/big"
 
 type Clerk struct {
-	servers []*labrpc.ClientEnd
-	mu     sync.Mutex
-	leader int
+	servers  []*labrpc.ClientEnd
+	mu       sync.Mutex
+	leader   int
+	clientId int64
+	opIndex  int
 }
 
 func nrand() int64 {
@@ -23,7 +25,8 @@ func nrand() int64 {
 func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.servers = servers
-	// You'll have to add code here.
+	ck.clientId = nrand()
+	ck.opIndex = 0
 	return ck
 }
 
@@ -39,6 +42,13 @@ func (ck *Clerk) changeLeader() {
 	ck.leader = (ck.leader + 1) % len(ck.servers)
 }
 
+func (ck *Clerk) getOpIndex() int {
+	ck.mu.Lock()
+	defer ck.mu.Unlock()
+	ck.opIndex++
+	return ck.opIndex
+}
+
 //
 // fetch the current value for a key.
 // returns "" if the key does not exist.
@@ -52,12 +62,17 @@ func (ck *Clerk) changeLeader() {
 // arguments. and reply must be passed as a pointer.
 //
 func (ck *Clerk) Get(key string) string {
-	args := GetArgs{Key: key}
+	args := GetArgs{
+		ClientId: ck.clientId,
+		Index:    ck.getOpIndex(),
+		Key:      key,
+	}
 	for {
 		leader := ck.getLeader()
 		reply := GetReply{}
 		ok := ck.servers[leader].Call("KVServer.Get", &args, &reply)
 		if ok {
+			DPrintf("[clerk to server %v] Get success: args = %v, reply = %v", leader, args, reply)
 			switch reply.Err {
 			case OK:
 				return reply.Value
@@ -67,6 +82,7 @@ func (ck *Clerk) Get(key string) string {
 				ck.changeLeader()
 			}
 		} else {
+			DPrintf("[clerk to server %v] Get failed: args = %v, reply = %v", leader, args, reply)
 			ck.changeLeader()
 		}
 	}
@@ -84,15 +100,18 @@ func (ck *Clerk) Get(key string) string {
 //
 func (ck *Clerk) PutAppend(key string, value string, op string) {
 	args := PutAppendArgs{
-		Key:   key,
-		Value: value,
-		Op:    op,
+		ClientId: ck.clientId,
+		Index:    ck.getOpIndex(),
+		Key:      key,
+		Value:    value,
+		Op:       op,
 	}
 	for {
 		leader := ck.getLeader()
 		reply := PutAppendReply{}
 		ok := ck.servers[leader].Call("KVServer.PutAppend", &args, &reply)
 		if ok {
+			DPrintf("[clerk to server = %v] PutAppend success: args = %v, reply = %v", leader, args, reply)
 			switch reply.Err {
 			case OK:
 				return
@@ -102,6 +121,7 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 				ck.changeLeader()
 			}
 		} else {
+			DPrintf("[clerk to server %v] PutAppend failed: args = %v, reply = %v", leader, args, reply)
 			ck.changeLeader()
 		}
 	}
