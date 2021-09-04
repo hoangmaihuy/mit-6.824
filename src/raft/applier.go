@@ -57,23 +57,25 @@ func (rf *Raft) applier() {
 		for ; lastApplied < commitIndex; {
 			rf.mu.Lock()
 			entry := rf.getLogEntry(lastApplied+1)
+			command := entry.Command
+			index := entry.Index
 			rf.mu.Unlock()
 			rf.applyCh <- ApplyMsg{
 				CommandValid:  true,
-				Command:       entry.Command,
-				CommandIndex:  entry.Index,
+				Command:       command,
+				CommandIndex:  index,
 				SnapshotValid: false,
 				Snapshot:      nil,
 				SnapshotTerm:  0,
 				SnapshotIndex: 0,
 			}
-			rf.DPrintf("committed index = %v", entry.Index)
 			rf.mu.Lock()
+			rf.DPrintf("committed index = %v", entry.Index)
 			rf.lastApplied = max(rf.lastApplied, lastApplied+1)
 			lastApplied = rf.lastApplied
 			commitIndex = rf.commitIndex
-			rf.mu.Unlock()
 			rf.DPrintf("applied entry = %v", entry)
+			rf.mu.Unlock()
 		}
 	}
 }

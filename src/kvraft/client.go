@@ -3,6 +3,7 @@ package kvraft
 import (
 	"6.824/labrpc"
 	"sync"
+	"time"
 )
 import "crypto/rand"
 import "math/big"
@@ -27,7 +28,15 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck.servers = servers
 	ck.clientId = nrand()
 	ck.opIndex = 0
+	go ck.NoOp()
 	return ck
+}
+
+func (ck *Clerk) NoOp() {
+	for {
+		time.Sleep(5 * time.Second)
+		go ck.Get("")
+	}
 }
 
 func (ck *Clerk) getLeader() int {
