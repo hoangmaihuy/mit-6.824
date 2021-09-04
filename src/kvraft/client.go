@@ -2,11 +2,14 @@ package kvraft
 
 import (
 	"6.824/labrpc"
+	"log"
 	"sync"
 	"time"
 )
 import "crypto/rand"
 import "math/big"
+
+const Timeout = 10 * time.Second
 
 type Clerk struct {
 	servers  []*labrpc.ClientEnd
@@ -14,6 +17,7 @@ type Clerk struct {
 	leader   int
 	clientId int64
 	opIndex  int
+	timeout  time.Time
 }
 
 func nrand() int64 {
@@ -28,14 +32,33 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck.servers = servers
 	ck.clientId = nrand()
 	ck.opIndex = 0
+	ck.setTimeout()
 	go ck.NoOp()
 	return ck
 }
 
+func (ck *Clerk) setTimeout() {
+	ck.mu.Lock()
+	defer ck.mu.Unlock()
+	ck.timeout = time.Now().Add(Timeout)
+}
+
+func (ck *Clerk) getTimeout() time.Time {
+	ck.mu.Lock()
+	defer ck.mu.Unlock()
+	return ck.timeout
+}
+
+// when new leader is elected, need a no-op to commit all previous terms entries
 func (ck *Clerk) NoOp() {
 	for {
-		time.Sleep(5 * time.Second)
-		go ck.Get("")
+		time.Sleep(Timeout)
+		timeout := ck.getTimeout()
+		if time.Now().After(timeout) {
+			ck.setTimeout()
+			log.Printf("clerk sending no-op")
+			go ck.Get("")
+		}
 	}
 }
 
@@ -79,6 +102,7 @@ func (ck *Clerk) Get(key string) string {
 	for {
 		leader := ck.getLeader()
 		reply := GetReply{}
+		ck.setTimeout()
 		ok := ck.servers[leader].Call("KVServer.Get", &args, &reply)
 		if ok {
 			DPrintf("[clerk to server %v] Get success: args = %v, reply = %v", leader, args, reply)
@@ -118,6 +142,7 @@ func (ck *Clerk) PutAppend(key string, value string, op string) {
 	for {
 		leader := ck.getLeader()
 		reply := PutAppendReply{}
+		ck.setTimeout()
 		ok := ck.servers[leader].Call("KVServer.PutAppend", &args, &reply)
 		if ok {
 			DPrintf("[clerk to server = %v] PutAppend success: args = %v, reply = %v", leader, args, reply)
