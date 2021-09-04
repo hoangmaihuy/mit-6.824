@@ -18,11 +18,10 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
-
 type Op struct {
-	// Your definitions here.
-	// Field names must start with capital letters,
-	// otherwise RPC will break.
+	OpName string // "Get", "Put", "Append"
+	Key    string
+	Value  string
 }
 
 type KVServer struct {
@@ -35,15 +34,56 @@ type KVServer struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
+	db Database
 }
 
-
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
-	// Your code here.
+	op := Op{
+		OpName: "Get",
+		Key: args.Key,
+		Value: "",
+	}
+	index, _, isLeader := kv.rf.Start(op)
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	for msg := range kv.applyCh {
+		if msg.CommandValid && msg.CommandIndex == index {
+			value, err := kv.db.Get(args.Key)
+			reply.Value = value
+			reply.Err = err
+			return
+		} else {
+			kv.applyCh <- msg
+		}
+	}
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
-	// Your code here.
+	op := Op{
+		OpName: args.Op,
+		Key: args.Key,
+		Value: args.Value,
+	}
+	index, _, isLeader := kv.rf.Start(op)
+	if !isLeader {
+		reply.Err = ErrWrongLeader
+		return
+	}
+	for msg := range kv.applyCh {
+		if msg.CommandValid && msg.CommandIndex == index {
+			if args.Op == "Put" {
+				kv.db.Put(args.Key, args.Value)
+			} else {
+				kv.db.Append(args.Key, args.Value)
+			}
+			reply.Err = OK
+			return
+		} else {
+			kv.applyCh <- msg
+		}
+	}
 }
 
 //
@@ -96,6 +136,7 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// You may need initialization code here.
+	kv.db.data = make(map[string]string)
 
 	return kv
 }
