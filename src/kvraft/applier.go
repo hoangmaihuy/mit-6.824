@@ -4,6 +4,11 @@ import (
 	"sync"
 )
 
+type ApplyKey struct {
+	clientId int64
+	index    int
+}
+
 type ApplyResult struct {
 	op    Op
 	value string
@@ -13,16 +18,32 @@ type ApplyResult struct {
 type ApplyData struct {
 	mu     sync.Mutex
 	cond   *sync.Cond
-	result map[int]ApplyResult
+	result map[ApplyKey]ApplyResult
+	done   map[int]bool
 }
 
-func (kv *KVServer) getApplyResultL(index int) *ApplyResult {
-	elem, ok := kv.applyData.result[index]
+func (kv *KVServer) getApplyResultL(clientId int64, index int) *ApplyResult {
+	key := ApplyKey{
+		clientId: clientId,
+		index:    index,
+	}
+	elem, ok := kv.applyData.result[key]
 	if !ok {
 		return nil
 	} else {
 		return &elem
 	}
+}
+
+func (kv *KVServer) deleteApplyResultL(clientId int64, index int) {
+	delete(kv.applyData.result, ApplyKey{
+		clientId: clientId,
+		index:    index,
+	})
+}
+func (kv *KVServer) checkDoneL(index int) bool {
+	done :=  kv.applyData.done[index]
+	return done
 }
 
 func (kv *KVServer) apply(command interface{}) (string, Err) {
@@ -42,13 +63,21 @@ func (kv *KVServer) applier() {
 	for msg := range kv.applyCh {
 		if msg.CommandValid {
 			kv.applyData.mu.Lock()
-			index := msg.CommandIndex
-			value, err := kv.apply(msg.Command)
-			kv.applyData.result[index] = ApplyResult{
-				op:    msg.Command.(Op),
-				value: value,
-				err:   err,
+			DPrintf("[server %v] apply msg = %v", kv.me, msg)
+			key := ApplyKey{
+				clientId: msg.Command.(Op).ClientId,
+				index:    msg.Command.(Op).Index,
 			}
+			_, ok := kv.applyData.result[key]
+			if !ok {
+				value, err := kv.apply(msg.Command)
+				kv.applyData.result[key] = ApplyResult{
+					op:    msg.Command.(Op),
+					value: value,
+					err:   err,
+				}
+			}
+			kv.applyData.done[msg.CommandIndex] = true
 			kv.applyData.mu.Unlock()
 			//DPrintf("[server %v] applier release lock", kv.me)
 			kv.applyData.cond.Broadcast()

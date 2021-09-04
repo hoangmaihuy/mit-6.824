@@ -36,45 +36,33 @@ type KVServer struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
-	opCount   int
 	applyData ApplyData
 	db        Database
-	log       map[string]Op
-	resp      map[int64]interface{}
-}
-
-func (kv *KVServer) getOpId() int {
-	kv.mu.Lock()
-	defer kv.mu.Unlock()
-	kv.opCount++
-	return kv.opCount
 }
 
 func (kv *KVServer) waitApply(op *Op, index int) *ApplyResult {
 	kv.applyData.mu.Lock()
 	defer kv.applyData.mu.Unlock()
 	for {
-		//DPrintf("[server %v] waitApply opId = %v, index = %v", kv.me, opId, index)
-		result := kv.getApplyResultL(index)
-		if result == nil {
-			//DPrintf("[server %v] waitApply sleep opId = %v, index = %v", kv.me, opId, index)
-			kv.applyData.cond.Wait()
-		} else {
-			if result.op.Index == op.Index {
-				delete(kv.applyData.result, index)
-				return result
-			} else {
+		if done := kv.checkDoneL(index); done {
+			result := kv.getApplyResultL(op.ClientId, op.Index)
+			if result == nil {
 				return nil
+			} else {
+				//kv.deleteApplyResultL(op.ClientId, op.Index)
+				return result
 			}
+		} else {
+			kv.applyData.cond.Wait()
 		}
 	}
 }
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	reply.Index = args.Index
-	if resp := kv.checkReply(args.ClientId, args.Index, "Get"); resp != nil {
-		reply.Err = resp.(GetReply).Err
-		reply.Value = resp.(GetReply).Value
+	if result := kv.checkApply(args.ClientId, args.Index); result != nil {
+		reply.Err = result.err
+		reply.Value = result.value
 		DPrintf("[server %v] Get: args = %v, reply = %v", kv.me, args, reply)
 		return
 	}
@@ -97,48 +85,19 @@ func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	}
 	reply.Value = result.value
 	reply.Err = result.err
-	if args.Key != "" {
-		kv.saveReply(args.ClientId, *reply)
-	}
 	DPrintf("[server %v] Get: args = %v, reply = %v", kv.me, args, reply)
 }
 
-func (kv *KVServer) checkReply(clientId int64, index int, op string) interface{} {
-	kv.mu.Lock()
-	defer kv.mu.Unlock()
-	reply, ok := kv.resp[clientId]
-	if ok {
-		switch reply.(type) {
-		case GetReply:
-			if op == "Get" && reply.(GetReply).Index == index {
-				return reply
-			} else {
-				return nil
-			}
-		case PutAppendReply:
-			if op == "PutAppend" && reply.(PutAppendReply).Index == index {
-				return reply
-			} else {
-				return nil
-			}
-		default:
-			return nil
-		}
-	} else {
-		return nil
-	}
-}
-
-func (kv *KVServer) saveReply(clientId int64, reply interface{}) {
-	kv.mu.Lock()
-	defer kv.mu.Unlock()
-	kv.resp[clientId] = reply
+func (kv *KVServer) checkApply(clientId int64, index int) *ApplyResult {
+	kv.applyData.mu.Lock()
+	defer kv.applyData.mu.Unlock()
+	return kv.getApplyResultL(clientId, index)
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	reply.Index = args.Index
-	if resp := kv.checkReply(args.ClientId, args.Index, "PutAppend"); resp != nil {
-		reply.Err = resp.(PutAppendReply).Err
+	if result := kv.checkApply(args.ClientId, args.Index); result != nil {
+		reply.Err = result.err
 		DPrintf("[server %v] PutAppend: args = %v, reply = %v", kv.me, args, reply)
 		return
 	}
@@ -166,7 +125,6 @@ ReplyWrongLeader:
 	return
 ReplyOK:
 	reply.Err = OK
-	kv.saveReply(args.ClientId, *reply)
 	DPrintf("[server %v] PutAppend: args = %v, reply = %v", kv.me, args, reply)
 	return
 }
@@ -226,9 +184,9 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 
 	kv.applyData.mu = sync.Mutex{}
 	kv.applyData.cond = sync.NewCond(&kv.applyData.mu)
-	kv.applyData.result = make(map[int]ApplyResult)
+	kv.applyData.result = make(map[ApplyKey]ApplyResult)
+	kv.applyData.done = make(map[int]bool)
 
-	kv.resp = make(map[int64]interface{})
 	go kv.applier()
 	return kv
 }
