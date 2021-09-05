@@ -94,6 +94,7 @@ func (rf *Raft) Snapshot(index int, snapshot []byte) {
 	if entry != nil {
 		rf.lastIncludedTerm = entry.Term
 	}
+	rf.updateTermL(rf.lastIncludedTerm)
 	if len(trimmedEntries) == 0 {
 		trimmedEntries = append(trimmedEntries, Entry{
 			Index: rf.lastIncludedIndex,

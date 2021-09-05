@@ -57,7 +57,6 @@ func (rf *Raft) getLogEntries(fromIndex int, size int) []Entry {
 func (rf *Raft) eraseEntries(fromIndex int) {
 	fromIndex -= rf.log.StartIndex
 	rf.log.Entries = rf.log.Entries[:fromIndex]
-	rf.persist()
 }
 
 func (rf *Raft) appendEntries(newEntries ...Entry) {

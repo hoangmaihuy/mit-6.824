@@ -28,17 +28,23 @@ func (rf *Raft) updateCommit() {
 	defer rf.mu.Unlock()
 	lastIndex := rf.lastLogEntry().Index
 	rf.matchIndex[rf.me] = lastIndex
-	for i := rf.commitIndex + 1; i <= lastIndex; i++ {
-		matchCount := 0
-		for j := range rf.peers {
-			if rf.matchIndex[j] >= i {
-				matchCount++
+	for i := lastIndex; i > rf.commitIndex; i-- {
+		if rf.getLogEntry(i).Term == rf.currentTerm {
+			matchCount := 0
+			for j := range rf.peers {
+				if rf.matchIndex[j] >= i {
+					matchCount++
+					if matchCount > len(rf.peers)/2 {
+						break
+					}
+				}
 			}
-		}
-		rf.DPrintf("updateCommit: index = %v, matchCount = %v", i, matchCount)
-		if matchCount > len(rf.peers)/2 && rf.getLogEntry(i).Term == rf.currentTerm {
-			rf.commitIndex = i
-			rf.applyCond.Broadcast()
+			rf.DPrintf("updateCommit: index = %v, matchCount = %v", i, matchCount)
+			if matchCount > len(rf.peers)/2 {
+				rf.commitIndex = i
+				rf.applyCond.Broadcast()
+				break
+			}
 		}
 	}
 }

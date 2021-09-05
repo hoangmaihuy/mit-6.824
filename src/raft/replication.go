@@ -1,6 +1,6 @@
 package raft
 
-const MaxAppendEntriesSize = 100
+const MaxAppendEntriesSize = 10
 
 func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
 	rf.mu.Lock()
@@ -46,7 +46,7 @@ func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply
 		if args.LeaderCommit > rf.commitIndex {
 			oldCommitIndex := rf.commitIndex
 			rf.commitIndex = min(args.LeaderCommit, rf.lastLogEntry().Index)
-			if oldCommitIndex != rf.commitIndex {
+			if oldCommitIndex < rf.commitIndex {
 				rf.applyCond.Broadcast()
 			}
 			rf.DPrintf("update commitIndex, old = %v, new = %v", oldCommitIndex, rf.commitIndex)

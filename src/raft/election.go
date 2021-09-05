@@ -6,7 +6,7 @@ import (
 )
 
 const MinElectionTimeout = 500 // milliseconds
-const MaxElectionTimeout = 1000 // milliseconds
+const MaxElectionTimeout = 2000 // milliseconds
 
 // RPC handler
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
